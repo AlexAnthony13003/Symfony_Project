@@ -31,6 +31,9 @@ class IngredientController extends AbstractController
         ]);
     }
 
+    /**
+     * Form POST CreateIngredient
+     */
     #[Route('/ingredient/nouveau', 'ingredient.new', methods:['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $manager) : Response
     {
@@ -55,5 +58,47 @@ class IngredientController extends AbstractController
         return $this->render('pages/ingredient/new.html.twig', [
             'form' => $form->createView()
         ]);
+    }
+
+    /**
+     * UPDATE an ingredient with a form
+     */
+    #[Route('/ingredient/edition/{id}', 'ingredient.edit', methods: ['GET', 'POST'])]
+    public function edit(IngredientRepository $repository, int $id, Request $request, EntityManagerInterface $manager) : Response
+    {
+        $ingredient = $repository->findOneBy(["id" => $id]);
+        $form = $this->createForm(IngredientType::class, $ingredient);
+        $form->handleRequest($request);
+        if ($form->isSubmitted()&& $form-> isValid()) {
+            $ingredient = $form->getData();
+            
+            $manager->persist($ingredient);
+            $manager->flush();
+
+            $this->addFlash(
+                'success',
+                'Votre ingrédient a été modifié avec succès'
+            );
+
+            return $this->redirectToRoute('ingredient.index');
+        }
+
+        return $this->render('pages/ingredient/edit.html.twig', [
+            'form' =>$form->createView()
+        ]);
+    }
+
+    #[Route('/ingredient/suppression/{id}', 'ingredient.delete', methods: ['GET'])]
+    public function delete(int $id, IngredientRepository $repository, EntityManagerInterface $manager) : Response{
+        
+        $ingredient = $repository->findOneBy(["id" => $id]);
+        $manager ->remove($ingredient);
+        $manager ->flush();
+        $this->addFlash(
+            'success',
+            'Votre ingrédient a été supprimé avec succès'
+        );
+
+        return $this->redirectToRoute('ingredient.index');
     }
 }
