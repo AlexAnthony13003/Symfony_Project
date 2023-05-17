@@ -4,10 +4,7 @@ namespace App\Entity;
 
 use App\Repository\RecetteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection as CollectionsCollection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use phpDocumentor\Reflection\Types\Collection;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -52,7 +49,7 @@ class Recette
     private ?float $price = null;
 
     #[ORM\Column(type: 'boolean')]
-    private ?bool $isFavorite = null;
+    private bool $isFavorite;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;

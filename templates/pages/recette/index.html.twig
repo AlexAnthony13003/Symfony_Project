@@ -1,20 +1,48 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello RecetteController!{% endblock %}
+{% block title %}Projet - Mes Recettes
+{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    <div class="container mt-4">
+        <h1>Mes Ingrédients</h1>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+        <a href="{{ path('recette.new' )}}" class="btn btn-primary mt-4">Créer une recette</a>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code><a href="{{ 'C:/Users/Alexis/Documents/Symfony/projetRecette/src/Controller/RecetteController.php'|file_link(0) }}">src/Controller/RecetteController.php</a></code></li>
-        <li>Your template at <code><a href="{{ 'C:/Users/Alexis/Documents/Symfony/projetRecette/templates/recette/index.html.twig'|file_link(0) }}">templates/recette/index.html.twig</a></code></li>
-    </ul>
-</div>
+        {% for message in app.flashes('success') %}
+        <div class="alert alert-success mt-4">
+          {{ message }}
+        </div>
+        {% endfor %}
+
+        <table class="table table-hover mt-4">
+  <thead>
+    <tr>
+      <th scope="col">Numéro</th>
+      <th scope="col">Nom</th>
+      <th scope="col">Prix</th>
+      <th scope="col">Difficulté</th>
+      <th scope="col">Date de Création</th>
+      <th scope="col">Edition</th>
+      <th scope="col">Suppression</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for recette in recettes %}
+    <tr class="table-secondary">
+      <th scope="row">{{ recette.id }}</th>
+      <td>{{ recette.name }}</td>
+      <td>{{ (recette.price is same as(null)) ? 'Non renseigné' : recette.price}}</td>
+      <td>{{ (recette.difficulty is same as(null)) ? 'Non renseigné' : recette.difficulty}}</td>
+      <td>{{ recette.CreatedAt|date('d/m/Y') }}</td>
+      <td><a href="{{ path('recette.edit', { id: recette.id })}}" class="btn btn-info">Modifier</a></td>
+      <td><a href="{{ path('recette.delete', { id: recette.id })}}" class="btn btn-warning">Supprimer</a></td>
+    </tr>   
+        {% endfor %}
+  </tbody>
+    </table>
+    <div class="navigation d-flex justify-content-center mt-4">
+        {{ knp_pagination_render(recettes) }}
+    </div>
+    </div>
 {% endblock %}
