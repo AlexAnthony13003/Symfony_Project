@@ -22,8 +22,9 @@ class RecetteController extends AbstractController
     public function index(EntityManagerInterface $recette, PaginatorInterface $paginator,
      RecetteRepository $repository, Request $request): Response
     {
+        $this->denyAccessUnlessGranted("ROLE_USER");
         $recettes = $paginator->paginate(
-            $repository->findAll(),
+            $repository->findBy(['user' => $this->getUser()]),
             $request->query->getInt('page', 1),
             10 /*limit per page*/
         );
@@ -37,12 +38,15 @@ class RecetteController extends AbstractController
      */
     #[Route('/recette/nouveau', 'recette.new', methods:['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $manager): Response {
+        $this->denyAccessUnlessGranted("ROLE_USER");
         $recette = new Recette();
         $form = $this->createForm(RecetteType::class, $recette);
 
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
             $recette = $form->getData();
+            $recette->setUser($this->getUser());
+
             
             $manager->persist($recette);
             $manager->flush();
@@ -65,6 +69,7 @@ class RecetteController extends AbstractController
     #[Route('/recette/edition/{id}', 'recette.edit', methods: ['GET', 'POST'])]
     public function edit(RecetteRepository $repository,int $id, Request $request, EntityManagerInterface $manager) : Response
     {
+        $this->denyAccessUnlessGranted("ROLE_USER");
         $recette = $repository->findOneBy(["id" => $id]);
         $form = $this->createForm(RecetteType::class, $recette);
         $form->handleRequest($request);
