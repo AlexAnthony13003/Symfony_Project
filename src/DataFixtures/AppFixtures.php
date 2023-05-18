@@ -21,35 +21,9 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        //Ingrédients
-        $ingredients = [];
-        for ($i=1; $i < 50; $i++) { 
-            $ingredient = new Ingredient();
-            $ingredient->setName('Ingredient ' . $i)
-            ->setPrice(mt_rand(0,100));
-
-            $ingredients[] = $ingredient;
-            $manager->persist($ingredient);      
-        }
-
-        //Recettes
-        for ($j=1; $j < 25; $j++) { 
-            $recette = new Recette();
-            $recette->setName('Recette ' . $j)
-            ->setTime(mt_rand(0,1) == 1 ? mt_rand(1, 60) : null)
-            ->setNumberOfPersons(mt_rand(0,1) == 1 ? mt_rand(1, 12) : null)
-            ->setDifficulty(mt_rand(0,1) == 1 ? mt_rand(1, 5) : null)
-            ->setDescription('lalalalalalalalala'. $j)
-            ->setPrice(mt_rand(1, 100))
-            ->setIsFavorite(mt_rand(0,1) == 1 ? true : false);
-
-            for ($k=0; $k <mt_rand(5, 15) ; $k++) { 
-                $recette->addIngredient($ingredients[mt_rand(0, count($ingredients) -1)]);
-            }
-            $manager->persist($recette);      
-        }
 
         //Users
+        $users =[];
         for ($i=0; $i < 10; $i++) { 
             $user = new User();
             $user->setFullName('User ' . $i)
@@ -64,7 +38,38 @@ class AppFixtures extends Fixture
 
             $user->setPassword($hashPassword);
 
+            $users[] = $user;
             $manager->persist($user);
+        }
+
+        //Ingrédients
+        $ingredients = [];
+        for ($i=1; $i < 50; $i++) { 
+            $ingredient = new Ingredient();
+            $ingredient->setName('Ingredient ' . $i)
+            ->setPrice(mt_rand(0,100))
+            ->setUser($users[mt_rand(0, count($users )-1)]);
+
+            $ingredients[] = $ingredient;
+            $manager->persist($ingredient);      
+        }
+
+        //Recettes
+        for ($j=1; $j < 25; $j++) { 
+            $recette = new Recette();
+            $recette->setName('Recette ' . $j)
+            ->setTime(mt_rand(0,1) == 1 ? mt_rand(1, 60) : null)
+            ->setNumberOfPersons(mt_rand(0,1) == 1 ? mt_rand(1, 12) : null)
+            ->setDifficulty(mt_rand(0,1) == 1 ? mt_rand(1, 5) : null)
+            ->setDescription('lalalalalalalalala'. $j)
+            ->setPrice(mt_rand(1, 100))
+            ->setIsFavorite(mt_rand(0,1) == 1 ? true : false)
+            ->setUser($users[mt_rand(0, count($users )-1)]);
+
+            for ($k=0; $k <mt_rand(5, 15) ; $k++) { 
+                $recette->addIngredient($ingredients[mt_rand(0, count($ingredients) -1)]);
+            }
+            $manager->persist($recette);      
         }
 
         $manager->flush();

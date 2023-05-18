@@ -20,8 +20,9 @@ class IngredientController extends AbstractController
     #[Route('/ingredient', name: 'ingredient.index', methods: ['GET'])]
     public function index(IngredientRepository $repository, PaginatorInterface $paginator, Request $request): Response
     {
+        $this->denyAccessUnlessGranted("ROLE_USER");
         $ingredients = $paginator->paginate(
-            $repository->findAll(),
+            $repository->findBy(['user' => $this->getUser()]),
             $request->query->getInt('page', 1),
             10 /*limit per page*/
         );
@@ -36,12 +37,14 @@ class IngredientController extends AbstractController
     #[Route('/ingredient/nouveau', 'ingredient.new', methods:['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $manager) : Response
     {
+        $this->denyAccessUnlessGranted("ROLE_USER");
         $ingredient = new Ingredient();
         $form = $this->createForm(IngredientType::class, $ingredient);
 
         $form->handleRequest($request);
         if ($form->isSubmitted()&& $form-> isValid()) {
             $ingredient = $form->getData();
+            $ingredient->setUser($this->getUser());
             
             $manager->persist($ingredient);
             $manager->flush();
@@ -65,6 +68,7 @@ class IngredientController extends AbstractController
     #[Route('/ingredient/edition/{id}', 'ingredient.edit', methods: ['GET', 'POST'])]
     public function edit(IngredientRepository $repository, int $id, Request $request, EntityManagerInterface $manager) : Response
     {
+        $this->denyAccessUnlessGranted("ROLE_USER", "user === ingredient.getUser()");
         $ingredient = $repository->findOneBy(["id" => $id]);
         $form = $this->createForm(IngredientType::class, $ingredient);
         $form->handleRequest($request);

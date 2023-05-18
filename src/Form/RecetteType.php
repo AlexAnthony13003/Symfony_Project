@@ -17,9 +17,15 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\RangeType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class RecetteType extends AbstractType
 {
+    private $token;
+    public function __construct(TokenStorageInterface $token)
+    {
+        $this->token = $token;
+    }
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -114,7 +120,9 @@ class RecetteType extends AbstractType
                 'class' => Ingredient::class,
                 'query_builder' => function (IngredientRepository $ingredient) {
                     return $ingredient->createQueryBuilder('i')
-                    ->orderBy('i.name', 'ASC');
+                    ->where('i.user = :user')
+                    ->orderBy('i.name', 'ASC')
+                    ->setParameter('user', $this->token->getToken()->getUser());
                 },
                 'choice_label' => 'name',
                 'multiple' => true,
